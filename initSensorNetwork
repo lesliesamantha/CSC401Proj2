@@ -41,7 +41,7 @@ public class initSensorNetwork {
 		}
 		if(response == 1)
 		{
-			System.out.print(int shortestPath(int graph[][], int u, int v, int k));
+			sensor.
 		}
 		if(response == 2)
 		{
