@@ -1,0 +1,98 @@
+public class nodePriorityQueue {
+	public nodePriorityQueue() {
+		arr = new minNode[DEFAULTMAX];
+		currSize = 0;
+	}
+	
+	public nodePriorityQueue(int maxSize) {
+		arr = new minNode[maxSize];
+		currSize = 0;
+	}
+
+	public void offer(String nodeID, double minCost, minNode prevNode) {
+		arr[currSize] = new minNode(nodeID, minCost, prevNode);
+		heapifyUp(currSize);
+		currSize++;
+	}
+	
+	public void offer(minNode newNode) {
+		arr[currSize] = newNode;
+		heapifyUp(currSize);
+		currSize++;
+	}
+	
+	public minNode peek() {
+		return arr[0];
+	}
+	
+	// Akin to getMin
+	public minNode poll() {
+		if (currSize == 0) {
+			return null;
+		}
+		
+		minNode temp = arr[0];
+		arr[0] = arr[currSize - 1];
+		currSize--;
+		heapifyDown(1);
+		arr[currSize] = null;
+		return temp;
+	}
+
+	public void changeKey(double key, double newKey) {
+		for(int i = 0; i < currSize; i++) {
+			if (Double.valueOf(arr[i].minCost).compareTo(key) == 0) {
+				minNode newNode = new minNode(arr[i].nodeID, newKey, arr[i].prevNode);
+				arr[i] = newNode;
+				if (i != 0 && arr[i].compareTo(arr[((i + 1) / 2) - 1]) <= 0) {
+					heapifyUp(i + 1);
+				} else {
+					heapifyDown(i + 1);
+				}
+				return;
+			}
+		}
+	}
+	
+	private void heapifyUp(int pos) {
+		pos++;
+		if (pos > 1) {
+			int parentPos = pos / 2;
+			if (arr[pos - 1].compareTo(arr[parentPos - 1]) < 0) {
+				minNode temp = arr[pos - 1];
+				arr[pos - 1] = arr[parentPos - 1];
+				arr[parentPos - 1] = temp;
+				heapifyUp(parentPos);
+			}
+		}
+	}
+
+	private void heapifyDown(int pos) {
+		int swapPos;
+		
+		if (2 * pos > currSize) {
+			return;
+		} else if (2 * pos < currSize) {
+			int leftPos = 2 * pos;
+			int rightPos = 2 * pos + 1;
+			if (arr[leftPos - 1].compareTo(arr[rightPos - 1]) < 0) {
+				swapPos = leftPos;
+			} else {
+				swapPos = rightPos;
+			}
+		} else {
+			swapPos = 2 * pos;
+		}
+		
+		if (arr[pos - 1].compareTo(arr[swapPos - 1]) < 0) {
+			minNode temp = arr[pos -1];
+			arr[pos - 1] = arr[swapPos - 1];
+			arr[swapPos - 1] = temp;
+			heapifyDown(swapPos);
+		}
+	}
+
+	minNode[] arr;
+	int currSize;
+	public static final int DEFAULTMAX = 1000;
+}
