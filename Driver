@@ -36,12 +36,13 @@ public class Driver {
 		
 		if(response == 0)
 		{
-			
+			SensorNetwork net = new SensorNetwork(width, length, nSensorNodes, range, nDataNodes, nPackets, storage);
+			net.listNodes();
 	
 		}
 		if(response == 1)
 		{
-			sensor.
+			//Call methods of BellmanFord
 		}
 		if(response == 2)
 		{
@@ -50,6 +51,7 @@ public class Driver {
 			int k = scanner.nextInt();
 			
 			if (k > 0) 
+				//Call method of shortestpath
 				sensor.shortestPath(int graph[][], int u, int v, int k)
 			
 			else 
