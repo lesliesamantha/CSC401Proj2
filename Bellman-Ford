@@ -2,7 +2,7 @@ package linear;
 import java.util.*;
 import java.lang.*;
 import java.io.*;
-public class Graph {
+public class Bellman-Ford {
 	// A class to represent a weighted edge in graph
     class Edge {
         int src, dest, weight;
