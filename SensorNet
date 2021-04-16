@@ -136,7 +136,7 @@ public class SensorNet {
 				}
 				
 				double connectionCostTotal = currNode.minCost + adjConnection.energyCost;
-				minNode temp = new minNode(adjConnection.endNodeID, connectionCostTotal, currNode);
+				leastNode temp = new leastNode(adjConnection.endNodeID, connectionCostTotal, currNode);
 				
 				if(!minCost.containsKey(adjConnection.endNodeID)) { // If edge leads to new node (not associated with minCost), place it into priority queue and minCost
 					nPQ.offer(temp);
@@ -152,7 +152,7 @@ public class SensorNet {
 		}
 		
 		LinkedList<String> path = new LinkedList<String>();
-		minNode trace = minCost.get(finalNode);
+		leastNode trace = minCost.get(finalNode);
 		double costPacket = trace.minCost * 1e-12; // pJ to J conversion
 		double costTotal = costPacket * nPackets; 
 		while(trace != null) {
