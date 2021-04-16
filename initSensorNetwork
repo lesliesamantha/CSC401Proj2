@@ -1,0 +1,201 @@
+package linear;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.IllegalArgumentException;
+import java.util.Scanner;
+
+public class initSensorNetwork {
+	public static void main(String[] args) 
+	{
+		InputStreamReader reader = new InputStreamReader(System.in);
+		BufferedReader console = new BufferedReader(reader);
+
+		// Input Variables
+		int width = getInput(console, 0, 1);
+		int length = getInput(console, 1, 1);
+		int nSensorNodes = getInput(console, 2, 2);
+		int range = getInput(console, 3, 0);
+		int nDataNodes = getInput(console, 4, 1, nSensorNodes - 1);
+		int nPackets = getInput(console, 5, 1);
+		int storage = getInput(console, 6, 0);
+
+		System.out.println("");
+		
+		if (nDataNodes * nPackets > (nSensorNodes - nDataNodes) * storage) {
+			System.out.println("There is not enough storage to handle all of the data nodes");
+			System.out.println("Please restart the program with new parameters");
+			System.out.println(
+					"Recommendation: increase storage capacity, decrease packet amount, or decrease number of data nodes");
+			System.exit(-1);
+		}
+        //int graph[][]=new int [][];
+		//User picks which algo to run
+		Scanner input2 = new Scanner(System.in);
+		System.out.println("Enter 0 for Dijkstra, 1 for Bellman-Ford, 2 for shortest path with k edges:");
+		int response = input2.nextInt();
+		
+		if (response ==0)
+		{
+			System.out.print("missing algo for 0");
+		}
+		else if (response == 1)
+		{
+			System.out.print("missing algo for 1");
+		}
+		else if (response == 2)
+		{
+			System.out.println("Enter number of edges");
+			
+			int k= input2.nextInt();
+			
+			if (k > 0)
+			ShortestPath.shortestPath( graph[][],nDataNodes,nSensorNodes,k);
+				System.out.println("NICE"); 
+			else 
+				System.out.println("Enter a vaild number");
+		}
+		else 
+			System.out.println("Error: Enter an appropriate number. ");
+		
+		//
+		SensorNetwork net = new SensorNetwork(width, length, nSensorNodes, range, nDataNodes, nPackets, storage);
+		net.listNodes();
+		
+		System.out.println("");
+		
+		String dataNode = null;
+		String storageNode = null;
+
+		while (dataNode == null) {
+			System.out.print("Please select a data node ID: ");
+			try {
+				String input = console.readLine();
+				if (net.isValidNode(input, SensorNetwork.nodeType.DataNode)) {
+					dataNode = input;
+				} else {
+					throw new IllegalArgumentException();
+				}
+			} catch (Exception e) {
+				System.out.println("Please enter a valid data node ID");
+			}
+		}
+		
+		while (storageNode == null) {
+			System.out.print("Please select a storage node ID: ");
+			try {
+				String input = console.readLine();
+				if (net.isValidNode(input, SensorNetwork.nodeType.StorageNode)) {
+					storageNode = input;
+				} else {
+					throw new IllegalArgumentException();
+				}
+			} catch (Exception e) {
+				System.out.println("Please enter a valid storage node ID");
+			}
+		}
+		
+		System.out.println("");
+		System.out.println("Data node: " + dataNode);
+		System.out.println("Storage node: " + storageNode);
+		net.findMinPath(dataNode, storageNode);
+		
+		
+	}
+
+	// Returns a user specified value for the varType (see switch cases below)
+	private static int getInput(BufferedReader console, int varType, int threshold) {
+		if (threshold < 0 || varType < 0 || varType > 6) {
+			System.out.println("Incorrect usage of getInput function");
+			System.exit(-1);
+		}
+
+		String specifyMsg;
+		String errorMsg;
+
+		switch (varType) {
+		case 0: // Length
+			specifyMsg = "Please specify the length (m): ";
+			errorMsg = "Please enter a valid length greater than zero";
+			break;
+		case 1: // Width
+			specifyMsg = "Please specify the width (m): ";
+			errorMsg = "Please enter a valid width greater than zero";
+			break;
+		case 2: // Sensor Node Count
+			specifyMsg = "Please specify the number of sensor nodes in the network: ";
+			errorMsg = "Please enter a valid number greater than one";
+			break;
+		case 3: // Transmission Range
+			specifyMsg = "Please specify the transmission range (m) for the nodes: ";
+			errorMsg = "Please enter a valid non-negative transmission range";
+			break;
+		// Data Node Count (Case 4) is overloaded
+		case 5: // Data Packets Per Data Node
+			specifyMsg = "Please specify the number of data packets each data node contains: ";
+			errorMsg = "Please enter a valid non-negative number";
+			break;
+		case 6: // Storage Capacity
+			specifyMsg = "Please specify the storage capacity of the storage nodes: ";
+			errorMsg = "Please enter a valid non-negative number";
+			break;
+		default: // Default Message (Should never be encountered)
+			specifyMsg = "Please enter a number: ";
+			errorMsg = "Please enter a valid number";
+		}
+
+		int input = -1;
+		while (input < threshold) {
+			System.out.print(specifyMsg);
+			try {
+				input = Integer.parseInt(console.readLine());
+				if (input < threshold) {
+					throw new IllegalArgumentException();
+				}
+			} catch (Exception e) {
+				System.out.println(errorMsg);
+			}
+		}
+
+		return input;
+	}
+
+	// Overloaded getInput specifically for the input of sensor node count
+	private static int getInput(BufferedReader console, int varType, int threshold, int nSensorNode) 
+	{
+		if (varType != 4 || threshold < 0 || threshold >= nSensorNode) {
+			System.out.println("Incorrect usage of getInput function");
+			System.exit(-1);
+		}
+
+		String specifyMsg;
+		String errorMsg;
+
+		switch (varType) {
+		case 4: // Data Node Count
+			specifyMsg = "Please specify the number of data nodes within the sensor nodes: ";
+			errorMsg = "Please enter a valid non-negative number less than the node count";
+			break;
+		default: // Default Message (Should never be encountered)
+			specifyMsg = "Please enter a number";
+			errorMsg = "Please enter a valid number";
+		}
+
+		int input = -1;
+		while (input < threshold) 
+		{
+			System.out.print(specifyMsg);
+			try {
+				input = Integer.parseInt(console.readLine());
+				if (input < threshold || input >= nSensorNode) {
+					input = -1;
+					throw new IllegalArgumentException();
+				}
+			} catch (Exception e) {
+				System.out.println(errorMsg);
+			}
+		}
+
+		return input;
+	}
+	
+}
