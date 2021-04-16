@@ -1,0 +1,278 @@
+import java.util.Map;
+import java.util.Set;
+
+import java.util.Queue;
+import java.util.LinkedHashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Iterator;
+
+import java.util.Random;
+
+public class SensorNet {
+	class Node {
+		Node(double x, double y, nodeType type) {
+			this.x = x;
+			this.y = y;
+			this.type = type;
+		}
+
+		double calculateDistance(Node other) {
+			double xdiff = x - other.x;
+			double ydiff = y - other.y;
+
+			double tempDist = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
+			return ((int)(tempDist) * SCALE) / SCALE;
+		}
+
+		double x;
+		double y;
+		nodeType type;
+	}
+
+	class Connection implements Comparable<Connection> {
+		Connection(String endNodeID, double energyCost) {
+			this.endNodeID = endNodeID;
+			this.energyCost = energyCost;
+		}
+
+		@Override
+		public int compareTo(Connection otherConnection) {
+			return Double.valueOf(this.energyCost).compareTo(otherConnection.energyCost);
+		}
+		
+		String endNodeID;
+		double energyCost;
+	}
+
+	// Default constructor (Quits the program on use)
+	public SensorNet() {
+		System.out.println("Please initialize the Sensor Network with valid parameters");
+		System.exit(-1);
+	}
+
+	// Valid Constructor
+	public SensorNet(int width, int length, int nSensorNodes, int range, int nDataNodes, int nPackets,
+			int storage) {
+		this.nSensorNodes = nSensorNodes;
+		this.nPackets = nPackets;
+		
+		int attemptNo = 0;
+		while (attemptNo < MAXATTEMPTS) {
+			initNodes(width, length, nDataNodes, nodeType.DataNode);
+			initNodes(width, length, nSensorNodes - nDataNodes, nodeType.StorageNode);
+			initConnections(range);
+
+			if (checkConnectivity()) {
+				break;
+			} else {
+				attemptNo++;
+				nodes = new LinkedHashMap<String, Node>();
+				connections = new LinkedHashMap<String, Set<Connection>>();
+			}
+		}
+
+		if (attemptNo == MAXATTEMPTS) {
+			System.out.println("Unable to create a connected Sensor Node using the specified parameters");
+			System.out.println(MAXATTEMPTS + " attempts were made with no success");
+			System.out.println("Please start the programs with new parameters");
+			System.out.println("Recommendation: increase transmission range");
+			System.exit(-1);
+		}
+	}
+
+	// Prints out data and storage nodes
+	public void listNodes() {
+		LinkedList<String> dataNodes = new LinkedList<String>();
+		LinkedList<String> storageNodes = new LinkedList<String>();
+
+		for (String currNode : nodes.keySet()) {
+			if (nodes.get(currNode).type == nodeType.DataNode) {
+				dataNodes.add(currNode);
+			} else {
+				storageNodes.add(currNode);
+			}
+		}
+
+		System.out.println("Data Nodes     Coordinates");
+		System.out.println("==============================");
+		for (String currNode : dataNodes) {
+			System.out.println(currNode + "          " + "(" + nodes.get(currNode).x + ", " + nodes.get(currNode).y + ")");
+		}
+
+		System.out.println("");
+
+		System.out.println("Storage Nodes     Coordinates");
+		System.out.println("==============================");
+		for (String currNode : storageNodes) {
+			System.out.println(currNode + "          " + "(" + nodes.get(currNode).x + ", " + nodes.get(currNode).y + ")");
+		}
+	}
+
+	// Checks if node ID is valid for the specified type
+	public boolean isValidNode(String nodeID, nodeType type) {
+		if (nodes.keySet().contains(nodeID) && nodes.get(nodeID).type == type) {
+			return true;
+		}
+		return false;
+	}
+
+	// Djikstra's Algorithm from Data 
+	public void findMinPath(String startNode, String finalNode) {
+		Set<String> exploredNodes = new HashSet<String>();
+		nodePriorityQueue nPQ = new nodePriorityQueue(nSensorNodes);
+		Map<String, leastNode> minCost = new LinkedHashMap<String, leastNode>(); // Table holding current minimum costs for each from start node, moving through explored nodes (i.e. discovered list)
+		
+		leastNode currNode = new leastNode(startNode, 0.0, null);
+		minCost.put(startNode, currNode);
+		nPQ.offer(startNode, 0.0, null);
+		
+		while((currNode = nPQ.poll()) != null) {
+			Set<Connection> adjNodes = connections.get(currNode.nodeID); // Grabs all edges associated with currNode
+			exploredNodes.add(currNode.nodeID);
+			for(Connection adjConnection : adjNodes) { // Checking each edge
+				if(exploredNodes.contains(adjConnection.endNodeID)) { // If edge leads to previously explored node, skip processing (shortest path found for this node already)
+					continue;
+				}
+				
+				double connectionCostTotal = currNode.minCost + adjConnection.energyCost;
+				minNode temp = new minNode(adjConnection.endNodeID, connectionCostTotal, currNode);
+				
+				if(!minCost.containsKey(adjConnection.endNodeID)) { // If edge leads to new node (not associated with minCost), place it into priority queue and minCost
+					nPQ.offer(temp);
+					minCost.put(adjConnection.endNodeID, temp);
+					continue;
+				} else if (minCost.get(adjConnection.endNodeID).compareTo(temp) <= 0) { // If edge leads to a discovered node, but path using edge more costly than node's current min cost path, ignore the edge
+					continue;
+				} else { // Edge leads to a discovered node, and new path is less costly than current min cost path for that node
+					nPQ.changeKey(minCost.get(adjConnection.endNodeID).minCost, connectionCostTotal);
+					minCost.replace(adjConnection.endNodeID, temp);
+				}
+			}
+		}
+		
+		LinkedList<String> path = new LinkedList<String>();
+		minNode trace = minCost.get(finalNode);
+		double costPacket = trace.minCost * 1e-12; // pJ to J conversion
+		double costTotal = costPacket * nPackets; 
+		while(trace != null) {
+			path.addFirst(trace.nodeID);
+			trace = trace.prevNode;
+		}
+		
+		String pathString = "";
+		String delimiter = " --> ";
+		for (String i : path) {
+			pathString = pathString + delimiter + i;
+		}
+		pathString = pathString.substring(delimiter.length());
+		
+		System.out.println("Minimum-energy data offloading path: ");
+		System.out.println(pathString);
+		
+		System.out.println("");
+		
+		System.out.println("Cost to offload one packet: " + costPacket + " J");
+		System.out.println("Cost to offload all packets: " + costTotal + " J");
+	}
+	
+	
+	// Populates "nodes" attribute (vertices) randomly with specified type
+	private void initNodes(int width, int length, int nNodes, nodeType type) {
+		Random rand = new Random();
+
+		String IDTemplate;
+		if (type == nodeType.DataNode) {
+			IDTemplate = "DN";
+		} else {
+			IDTemplate = "SN";
+		}
+
+		for (int i = 0; i < nNodes; i++) {
+			Node temp = new Node(0, 0, type);
+
+			double xx = rand.nextDouble() * length;
+			double yy = rand.nextDouble() * width;
+			
+			temp.x = ((int)(xx * SCALE)) / SCALE;
+			temp.y = ((int)(yy * SCALE)) / SCALE;
+
+			nodes.put(IDTemplate + i, temp);
+		}
+	}
+
+	// Populates "connections" attribute (edges)
+	private void initConnections(int range) {
+		for (String ID : nodes.keySet()) {
+			connections.put(ID, new HashSet<Connection>());
+		}
+
+		for (String currID : connections.keySet()) {
+			Set<Connection> currConnections = connections.get(currID);
+			Node currNode = nodes.get(currID);
+
+			for (String otherID : nodes.keySet()) {
+				if (currID.equals(otherID)) {
+					continue;
+				}
+
+				double distance = currNode.calculateDistance(nodes.get(otherID));
+
+				if (distance < range) {
+					double energyCost = calculateEnergyCost(distance);
+					currConnections.add(new Connection(otherID, energyCost));
+				}
+			}
+		}
+	}
+
+	// Checks connectivity of the sensor network using BFS
+	private boolean checkConnectivity() {
+		// Empty Sensor Network or Sensor Network contains only one node
+		if (nSensorNodes <= 1) {
+			return true;
+		}
+
+		Set<String> discoveredNodes = new HashSet<String>();
+		Queue<String> nodeQueue = new LinkedList<String>();
+
+		Iterator<String> nodeIterator = nodes.keySet().iterator();
+		String firstNode = nodeIterator.next();
+		nodeQueue.offer(firstNode);
+		discoveredNodes.add(firstNode);
+
+		while (!nodeQueue.isEmpty()) {
+			String currNode = nodeQueue.poll();
+
+			for (Connection adjNode : connections.get(currNode)) {
+				if (!discoveredNodes.contains(adjNode.endNodeID)) {
+					nodeQueue.offer(adjNode.endNodeID);
+					discoveredNodes.add(adjNode.endNodeID);
+				}
+			}
+		}
+
+		return (discoveredNodes.size() == nSensorNodes);
+	}
+
+	private double calculateEnergyCost(double distance) {
+		return 2 * ENERGYELEC * PACKETSIZE + ENERGYAMP * PACKETSIZE * distance * distance;
+	}
+
+	private Map<String, Node> nodes = new LinkedHashMap<String, Node>();
+	private Map<String, Set<Connection>> connections = new LinkedHashMap<String, Set<Connection>>();
+
+	private int nSensorNodes;
+	private int nPackets;
+	
+	private static final double ENERGYAMP = 100; // pJ/bit/m^2
+	private static final double ENERGYELEC = 100000; // pJ/bit = 100nJ/bit
+	private static final int PACKETSIZE = 3200; // bits
+
+	private static final int MAXATTEMPTS = 50;
+	private static final double SCALE = 1000000.0; // truncates decimal places of coordinates by amount of 0s in SCALE
+
+	public enum nodeType {
+		DataNode, StorageNode
+	}
+}
