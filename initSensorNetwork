@@ -34,7 +34,7 @@ public class initSensorNetwork {
 		System.out.println("Enter 0 for Dijkstra, 1 for Bellman-Ford, 2 for shortest path with k edges:");
 		int response = input2.nextInt();
 		
-		if (response ==0)
+		if (response == 0)
 		{
 			//use his Dijkstra as plan B
 			System.out.print("missing algo for 0");
