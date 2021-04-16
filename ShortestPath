@@ -49,6 +49,30 @@ class ShortestPath
                 }
             }
         }
+        LinkedList<String> path = new LinkedList<String>();
+		minNode trace = minCost.get(finalNode);
+		double costPacket = trace.minCost * 1e-12; // pJ to J conversion
+		double costTotal = costPacket * nPackets; 
+		while(trace != null) {
+			path.addFirst(trace.nodeID);
+			trace = trace.prevNode;
+		}
+		
+		String pathString = "";
+		String delimiter = " --> ";
+		for (String i : path) {
+			pathString = pathString + delimiter + i;
+		}
+		pathString = pathString.substring(delimiter.length());
+		
+		System.out.println("Minimum-energy data offloading path: ");
+		System.out.println(pathString);
+		
+		System.out.println("");
+		
+		System.out.println("Cost to offload one packet: " + costPacket + " J");
+		System.out.println("Cost to offload all packets: " + costTotal + " J");
         return sp[u][v][k];
+        
    }
 }
