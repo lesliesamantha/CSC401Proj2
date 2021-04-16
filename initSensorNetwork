@@ -28,36 +28,36 @@ public class initSensorNetwork {
 					"Recommendation: increase storage capacity, decrease packet amount, or decrease number of data nodes");
 			System.exit(-1);
 		}
-        //int graph[][]=new int [][];
+        //int graph[][] = new int [][];
 		//User picks which algo to run
-		Scanner input2 = new Scanner(System.in);
+		Scanner scanner = new Scanner(System.in);
 		System.out.println("Enter 0 for Dijkstra, 1 for Bellman-Ford, 2 for shortest path with k edges:");
-		int response = input2.nextInt();
+		int response = scanner.nextInt();
 		
-		if (response == 0)
+		if(response == 0)
 		{
 			//use his Dijkstra as plan B
-			System.out.print("missing algo for 0");
+	
 		}
-		else if (response == 1)
+		if(response == 1)
 		{
-			System.out.print("missing algo for 1");
+			System.out.print(int shortestPath(int graph[][], int u, int v, int k));
 		}
-		else if (response == 2)
+		if(response == 2)
 		{
 			System.out.println("Enter number of edges");
 			
-			int k = input2.nextInt();
+			int k = scanner.nextInt();
 			
-			if (k > 0)
-			ShortestPath.shortestPath( graph[][],nDataNodes,nSensorNodes,k);
-				System.out.println("NICE"); 
+			if (k > 0) 
+				sensor.shortestPath(int graph[][], int u, int v, int k)
+			
 			else 
 				System.out.println("Please enter a valid number");
-				k = input2.nextInt();
+				k = scanner.nextInt();
 		}
 		else 
-			System.out.println("Error: Enter an appropriate number. ");
+			System.out.println("Error: Enter an appropriate number.");
 		
 		//
 		SensorNetwork net = new SensorNetwork(width, length, nSensorNodes, range, nDataNodes, nPackets, storage);
