@@ -36,7 +36,7 @@ public class Driver {
 		
 		if(response == 0)
 		{
-			//use his Dijkstra as plan B
+			
 	
 		}
 		if(response == 1)
@@ -105,7 +105,7 @@ public class Driver {
 		
 	}
 
-	// Returns a user specified value for the varType (see switch cases below)
+	
 	private static int getInput(BufferedReader console, int varType, int threshold) {
 		if (threshold < 0 || varType < 0 || varType > 6) {
 			System.out.println("Incorrect usage of getInput function");
@@ -162,7 +162,7 @@ public class Driver {
 		return input;
 	}
 
-	// Overloaded getInput specifically for the input of sensor node count
+	
 	private static int getInput(BufferedReader console, int varType, int threshold, int nSensorNode) 
 	{
 		if (varType != 4 || threshold < 0 || threshold >= nSensorNode) {
