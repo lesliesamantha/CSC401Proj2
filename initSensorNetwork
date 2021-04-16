@@ -46,13 +46,14 @@ public class initSensorNetwork {
 		{
 			System.out.println("Enter number of edges");
 			
-			int k= input2.nextInt();
+			int k = input2.nextInt();
 			
 			if (k > 0)
 			ShortestPath.shortestPath( graph[][],nDataNodes,nSensorNodes,k);
 				System.out.println("NICE"); 
 			else 
-				System.out.println("Enter a vaild number");
+				System.out.println("Please enter a valid number");
+				k = input2.nextInt();
 		}
 		else 
 			System.out.println("Error: Enter an appropriate number. ");
@@ -76,7 +77,8 @@ public class initSensorNetwork {
 					throw new IllegalArgumentException();
 				}
 			} catch (Exception e) {
-				System.out.println("Please enter a valid data node ID");
+				System.out.println("Please enter a valid data node ID: ");
+				dataNode = input;
 			}
 		}
 		
