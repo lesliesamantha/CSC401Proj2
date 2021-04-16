@@ -5,7 +5,7 @@ import java.io.*;
   
 class ShortestPath
 {
-    // Define number of vertices in the graph and inifinite value
+    // Define number of vertices in the graph and infinite value
     static final int V = 4;
     static final int INF = Integer.MAX_VALUE;
   
