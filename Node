@@ -1,16 +1,16 @@
-public class minNode implements Comparable<minNode> {
-		public minNode(String nodeID, double minCost, minNode prevNode) {
+public class Node implements Comparable<Node> {
+		public Node(String nodeID, double minCost, Node prevNode) {
 			this.nodeID = nodeID;
 			this.minCost = minCost;
 			this.prevNode = prevNode;
 		}
 
 		@Override
-		public int compareTo(minNode other) {
+		public int compareTo(Node other) {
 			return Double.valueOf(this.minCost).compareTo(other.minCost);
 		}
 
 		String nodeID;
 		double minCost;
-		minNode prevNode;
+		Node prevNode;
 	}
