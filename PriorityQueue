@@ -1,16 +1,16 @@
 public class PriorityQueue {
 	public PriorityQueue() {
-		arr = new minNode[DEFAULTMAX];
+		arr = new leastNode[DEFAULTMAX];
 		currSize = 0;
 	}
 	
 	public PriorityQueue(int maxSize) {
-		arr = new minNode[maxSize];
+		arr = new leastNode[maxSize];
 		currSize = 0;
 	}
 
-	public void offer(String nodeID, double minCost, minNode prevNode) {
-		arr[currSize] = new minNode(nodeID, minCost, prevNode);
+	public void offer(String nodeID, double minCost, leastNode prevNode) {
+		arr[currSize] = new leastNode(nodeID, minCost, prevNode);
 		heapifyUp(currSize);
 		currSize++;
 	}
