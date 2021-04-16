@@ -1,5 +1,5 @@
-public class Node implements Comparable<Node> {
-		public Node(String nodeID, double minCost, Node prevNode) {
+public class leastNode implements Comparable<leastNode> {
+		public leastNode(String nodeID, double minCost, leastNode prevNode) {
 			this.nodeID = nodeID;
 			this.minCost = minCost;
 			this.prevNode = prevNode;
@@ -12,5 +12,5 @@ public class Node implements Comparable<Node> {
 
 		String nodeID;
 		double minCost;
-		Node prevNode;
+		leastNode prevNode;
 	}
